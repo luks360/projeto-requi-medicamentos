@@ -9,6 +9,8 @@
     <!--<meta name="google-signin-client_id" content="469673828599-qsk5o17sgmtifbgglfdl85bto9e0s776.apps.googleusercontent.com">-->
     <title>Home</title>
 
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
     <!-- Bootstrap core CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
@@ -31,6 +33,9 @@
 
     <!--Google Platform Library-->
     <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <script src="https://unpkg.com/jwt-decode/build/jwt-decode.js"></script>
+    <script src="../../../backend/login.js"></script>
+
     <style>
         a {
             text-decoration: none;
@@ -69,16 +74,31 @@
                     <div class="data">
                     <?php
                     if ($login_button == '') {
-                        echo '<div class="dropdown">';
-                        echo '<a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false"><img src=' . $_SESSION['user_image'] . ' class="rounded-circle" width="40" height="40"/><h5 style="display: inline-block; padding-left: 5px; color: #2ab152;">' . $_SESSION['user_first_name'] .'</h5></a>';
+                        echo '<div id="buttonDiv"></div>';
+                        // Botão do google com html
+                        // echo '<div id="g_id_onload"
+                        // data-client_id="YOUR_GOOGLE_CLIENT_ID"
+                        // data-login_uri="https://your.domain/your_login_endpoint"
+                        // data-auto_prompt="false">';
+                        // echo '</div>';
+                        // echo '<div class="g_id_signin"
+                        // data-type="standard"
+                        // data-size="large"
+                        // data-theme="outline"
+                        // data-text="sign_in_with"
+                        // data-shape="rectangular"
+                        // data-logo_alignment="left">';
+                        // Botão do google com javascript
+                        // echo '<div class="dropdown">';
+                        // echo '<a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false"><img src=' . $_SESSION['user_image'] . ' class="rounded-circle" width="40" height="40"/><h5 style="display: inline-block; padding-left: 5px; color: #2ab152;">' . $_SESSION['user_first_name'] .'</h5></a>';
 
-                        echo '<ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">';
-                            echo '<li><a class="dropdown-item" href="dashboard.php">Dashboard</a></li>';
-                            echo '<li><a class="dropdown-item" href="profile.php">Perfil</a></li>';
-                            echo '<li><a class="dropdown-item" href="solicitations.php">Solicitações</a></li>';
-                            echo '<li><a class="dropdown-item" href="../../../backend/logout.php">Logout</a></li>';
-                        echo '</ul>';
-                        echo '</div>';
+                        // echo '<ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">';
+                        //     echo '<li><a class="dropdown-item" href="dashboard.php">Dashboard</a></li>';
+                        //     echo '<li><a class="dropdown-item" href="profile.php">Perfil</a></li>';
+                        //     echo '<li><a class="dropdown-item" href="solicitations.php">Solicitações</a></li>';
+                        //     echo '<li><a class="dropdown-item" href="../../../backend/logout.php">Logout</a></li>';
+                        // echo '</ul>';
+                        // echo '</div>';
                     } else {
                         echo '<div>' . $login_button . '</div>';
                     }
