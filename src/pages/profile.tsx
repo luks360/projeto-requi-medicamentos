@@ -6,7 +6,7 @@ import Sidebar from '../components/Sidebar'
 const Profile: NextPage = () => {
     return (
         <>
-            <body>
+            <div className='body'>
                 <div id="main-wrapper" data-layout="vertical" data-navbarbg="skin5" data-sidebartype="full"
                     data-sidebar-position="absolute" data-header-position="absolute" data-boxed-layout="full">
                     <Header />
@@ -71,7 +71,7 @@ const Profile: NextPage = () => {
                 </div>
                 <hr id="div" className="featurette-divider" />
                 <Footer />
-            </body>
+            </div>
         </>
     )
 }

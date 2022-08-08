@@ -5,7 +5,7 @@ import Footer from "../components/Footer"
 const Home: NextPage = () => {
     return (
     <>
-        <body className="body">
+        <div className="body">
             <Header />
             <main>
                 <div id="myCarousel" className="carousel slide" data-bs-ride="carousel">
@@ -18,7 +18,7 @@ const Home: NextPage = () => {
                     <>
                         <div className="carousel-item active">
                             <img id="farmimg" className="bd-placeholder-img" width="100%" height="100%" src="img/farmacia.png"
-                                aria-hidden="true" preserveAspectRatio="xMidYMid slice" focusable="false" />
+                                aria-hidden="true" />
 
                                 <div className="container">
                                     <div className="carousel-caption text-start">
@@ -30,7 +30,7 @@ const Home: NextPage = () => {
                         </div>
                         <div className="carousel-item">
                             <img id="medimg" className="bd-placeholder-img" width="100%" height="100%" src="img/medicamentos.jpg"
-                                aria-hidden="true" preserveAspectRatio="xMidYMid slice" focusable="false" />
+                                aria-hidden="true" />
 
                                 <div className="container">
                                     <div className="carousel-caption">
@@ -59,8 +59,8 @@ const Home: NextPage = () => {
                         <div className="col-md-7">
                             <h2 className="featurette-heading ">O que é a FRM? <span className="text-muted"> Um pouco sobre
                                 nós.</span></h2>
-                            <div className="lead">A FRM é um projeto de sistema que visá melhorar a requisição de medicamentos, para dessa forma aqueles que usarem este sistema tenham a maior praticidade possivel.
-                            </div>
+                            <p className="lead">A FRM é um projeto de sistema que visá melhorar a requisição de medicamentos, para dessa forma aqueles que usarem este sistema tenham a maior praticidade possivel.
+                            </p>
                         </div>
                         <div className="col-md-5">
                             <img className="bd-placeholder-img bd-placeholder-img-lg featurette-image img-fluid mx-auto" width="400"
@@ -73,7 +73,7 @@ const Home: NextPage = () => {
                     <div className="row featurette" id="paraclientes">
                         <div className="col-md-7">
                             <h2 className="featurette-heading">O que eu como cliente posso fazer? <span className="text-muted">Simples, tenha suas necessidades atendidas!</span></h2>
-                            <div className="lead">Obviamente você primeiro terá que ter um cadastro no sistema, e depois disso você poderá: </div><br />
+                            <p className="lead">Obviamente você primeiro terá que ter um cadastro no sistema, e depois disso você poderá: </p><br />
                             <li className="lead">Fazer requisições de medicamentos rapidamente;</li>
                             <li className="lead">Escolher aceitar a oferta recebida ou não.</li>
                         </div>
@@ -88,7 +88,7 @@ const Home: NextPage = () => {
 
                 <Footer />
             </main>
-        </body>
+        </div>
     </>
     )
 }
