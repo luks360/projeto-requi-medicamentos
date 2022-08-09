@@ -1,6 +1,9 @@
 import Link from "next/link";
+import { signIn, signOut, useSession } from "next-auth/react";
 
-export default function Header() {
+const Header: NextPage = () => {
+
+    const {data: session} = useSession();
 
     return (
         <header>
@@ -28,7 +31,30 @@ export default function Header() {
                                 </li>
                             </ul>
                             <div className="data">
-                                <div id="login"></div>                               
+                                {/* {status && <p>Loading..</p>} */}
+                            {!session && (
+                                <>
+                                    <button
+                                        className="login-with-google-btn"
+                                        onClick={() => {
+                                            signIn("google", { callbackUrl: "http://localhost:5500" })
+                                            
+                                        }
+                                    }
+                                        >
+                           
+                                        Google
+                                    </button>
+
+                                </>
+                            )}
+                            {session && (
+                                <>
+                                    
+                                    {session.session.user.name} <br />
+                                    <button onClick={() => signOut()}>Sair</button>
+                                </>
+                            )}                              
                             </div>
                         </div>
                     </div>
@@ -37,3 +63,5 @@ export default function Header() {
     )
     
 }
+
+export default Header;

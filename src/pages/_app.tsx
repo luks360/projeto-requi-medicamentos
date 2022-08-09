@@ -3,7 +3,7 @@ import { SessionProvider } from "next-auth/react"
 import '../styles/index.css'
 import Script from 'next/script'
 
-function MyApp({ Component, pageProps: { session, ... pageProps} }: AppProps) {
+function MyApp({ Component, pageProps: { session, ...pageProps} }: AppProps) {
 return (
 <>  
     <meta charSet="utf-8"/>
@@ -19,9 +19,9 @@ return (
     <Script src="https://unpkg.com/jwt-decode/build/jwt-decode.js"></Script>
     
     
-    {/* <SessionProvider session={session}> */}
+    <SessionProvider session={session}>
         <Component {...pageProps} />
-    {/* </SessionProvider> */}
+    </SessionProvider>
 </>
 )
 }

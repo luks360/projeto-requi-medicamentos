@@ -2,6 +2,7 @@ import type { NextPage } from 'next'
 import Header from "../components/Header"
 import Footer from "../components/Footer"
 import Sidebar from '../components/Sidebar'
+import { getSession } from 'next-auth/react'
 
 const Solicitations: NextPage = () => {
     return (
@@ -55,3 +56,19 @@ const Solicitations: NextPage = () => {
 }
 
 export default Solicitations
+
+export const getServerSideProps = async (context) => {
+    const session = await getSession(context);
+    if (!session) {
+        return {
+            redirect: {
+                destination: '/',
+                permanent: false
+            }
+        };
+    };
+
+    return {
+        props: { session }
+    }
+}

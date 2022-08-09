@@ -2,6 +2,7 @@ import type { NextPage } from 'next'
 import Header from "../components/Header"
 import Footer from "../components/Footer"
 import Sidebar from '../components/Sidebar'
+import { useSession, getSession } from 'next-auth/react'
 import axios from 'axios'
 
 type Request = {
@@ -17,6 +18,10 @@ type DashboardProps = {
 }
 
 const Dashboard: NextPage<DashboardProps> = ({ requests }: DashboardProps) => {
+    
+    const { data: session, status} = useSession()
+
+    if(status === 'authenticated'){
     return (
         <>
             <div className="body">
@@ -155,6 +160,7 @@ const Dashboard: NextPage<DashboardProps> = ({ requests }: DashboardProps) => {
             </div>
         </>
     )
+ }
 }
 
 // export async function getServerSideProps() {
@@ -198,3 +204,19 @@ const Dashboard: NextPage<DashboardProps> = ({ requests }: DashboardProps) => {
 // }
 
 export default Dashboard
+
+export const getServerSideProps = async (context) =>{
+    const session = await getSession(context);
+    if(!session){
+        return {
+            redirect:{
+                destination: '/',
+                permanent: false
+            }
+        };
+    };
+
+    return { 
+        props: { session }
+    }
+}
