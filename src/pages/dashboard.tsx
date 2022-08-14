@@ -140,7 +140,7 @@ const Dashboard: NextPage<DashboardProps> = ({ requests }: DashboardProps) => {
                                                                 </div>
                                                                 <div className="form-group row">
                                                                     <div className="col-sm-10">
-                                                                        <button type="submit" name="CadSoli" id="CadSoli" className="btn btn-outline-success" aria-hidden="true" >
+                                                                        <button type="submit" name="CadSoli" id="CadSoli" className="btn btn-outline-success" aria-hidden="true">
                                                                             Criar
                                                                         </button>
                                                                     </div>
@@ -163,7 +163,31 @@ const Dashboard: NextPage<DashboardProps> = ({ requests }: DashboardProps) => {
                                                         </tr>
                                                     </thead>
                                                     <tbody id='data-requests'>
-                                                        
+                                                    {
+                                                        requests.map((request,index) => {
+                                                            var s
+                                                            if(request.status == 1)
+                                                                s = <button type="button" className="btn btn-outline-primary" style={{color: "#007bff", borderColor: "#007bff", borderRadius:"20px"}} disabled>Em andamento</button>
+                                                            else if(request.status == 2)
+                                                                s = <button type="button" className="btn btn-outline-success" style={{color: "#28a745", borderColor: "#28a745", borderRadius:"20px"}} disabled>Concluida</button>
+                                                            else
+                                                                s = <button type="button" className="btn btn-outline-danger" style={{color: "#dc3545", borderColor: "#dc3545", borderRadius:"20px"}} disabled>Cancelada</button>
+                                                                
+                                                        return (
+                                                            <tr key={request.id}>
+                                                                <td>{index += 1}</td> 
+                                                                <td>{request.medicament}</td>
+                                                                <td>{request.quant}</td>
+                                                                <td>{request.type}</td>
+                                                                <td>{s}</td>
+                                                                <td>
+                                                                    <button className="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar" style={{marginLeft: "5px"}} data-toggle="modal" data-target="#editarSolicitacaoModal"><span className="ti-pencil-alt"></span></button>
+                                                                    <button className="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Excluir" style={{marginLeft: "5px"}} data-toggle="modal" data-target="#excluirSolicitacaoModal"><span className="ti-trash" style={{color: "#ffffff"}}></span></button>
+                                                                </td>
+                                                            </tr>
+                                                            
+                                                        )
+                                                    })}
                                                     </tbody>
                                                 </table>
                                             </div>
@@ -192,8 +216,18 @@ export const getServerSideProps = async (context) => {
         };
     };
 
+    const { data } = await axios.get(`http://127.0.0.1:5000/patients/${session.token.sub}/requests?limit=8`);
+    const requests = data.map((dados: Request) => {
+        return {
+            id: dados.id,
+            medicament: dados.medicament,
+            quant: dados.quant,
+            type: dados.type,
+            status: dados.status,
+        }
+    })
     return {
-        props: { session }
+        props: { session, requests }
     }
 }
 
