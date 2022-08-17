@@ -2,15 +2,17 @@ import type { NextPage } from 'next'
 import Header from "../components/Header"
 import Footer from "../components/Footer"
 import Sidebar from '../components/Sidebar'
+import CancelButton from '../components/CancelButton'
 import { useSession, getSession } from 'next-auth/react'
 import axios from 'axios'
+import { useState } from 'react'
 
 type Request = {
-    id: int,
+    id: number,
     medicament: string,
-    quant: int,
+    quant: number,
     type: string,
-    status: int,
+    status: number,
     ID_patient: string
 }
 
@@ -21,8 +23,9 @@ type DashboardProps = {
 
 
 const Dashboard: NextPage<DashboardProps> = ({ requests }: DashboardProps) => {
-    
+
     const { data: session, status } = useSession()
+
     const cadastrarSoli = e => {
         e.preventDefault()
         const medicament = (document.querySelector("#medicamento") as HTMLInputElement)!.value
@@ -33,12 +36,38 @@ const Dashboard: NextPage<DashboardProps> = ({ requests }: DashboardProps) => {
         const name = session.token.name
         const contact = session.token.email
         const URL = `http://127.0.0.1:5000/patients/${ID_patient}/requests`;
-    
+
         const rqt = { "medicament": medicament, "quant": quant, "type": type, "status": status, "id_patient": ID_patient, "name": name, "contact": contact }
         axios.post(URL, rqt).then(function (resposta) {
             console.log("Solicitação cadastrada!")
         });
     }
+
+    const editarSoli = e => {
+        e.preventDefault()
+        const id = (document.querySelector("#buttonSE") as HTMLButtonElement)!.value
+        const medicament = (document.querySelector("#emedicamento") as HTMLInputElement)!.value
+        const quant = (document.querySelector("#equantidade") as HTMLInputElement)!.value
+        const type = (document.querySelector("#ecomOrGo") as HTMLInputElement)!.value
+        const status = "1"
+        const URL = `http://127.0.0.1:5000/patients/requests/${id}`;
+
+        const rqt = { "medicament": medicament, "quant": quant, "type": type, "status": status }
+        axios.put(URL, rqt).then(function (resposta) {
+            console.log("Solicitação atualizada!")
+        });
+    }
+
+
+    const cancelSoli = e => {
+        e.preventDefault()
+        const id = (document.querySelector("#buttonSC") as HTMLButtonElement)!.value
+        const data = { "status": 1 }
+        axios.patch(`http://127.0.0.1:5000/patients/requests/${id}/status`, data).then(response => {
+            console.log(response)
+        })
+    }
+
     if (status === 'authenticated') {
         return (
             <>
@@ -59,7 +88,7 @@ const Dashboard: NextPage<DashboardProps> = ({ requests }: DashboardProps) => {
                                 <div className="row justify-content-center">
                                     <div className="col-lg-3 col-md-12">
                                         <div className="white-box analytics-info">
-                                            <h3 className="box-title">Requisições <br/> criadas</h3>
+                                            <h3 className="box-title">Requisições <br /> criadas</h3>
                                             <ul className="list-inline two-part d-flex align-items-center mb-0">
                                                 <li className="ms-auto"><span className="counter text-warning">0</span></li>
                                             </ul>
@@ -110,7 +139,7 @@ const Dashboard: NextPage<DashboardProps> = ({ requests }: DashboardProps) => {
                                                 <div className="modal-dialog modal-lg" role="document">
                                                     <div className="modal-content">
                                                         <div className="modal-header">
-                                                            <h5 className="modal-title" id="addSolicitacaoModalLabel">Criar requisição</h5>
+                                                            <h5 className="modal-title" id="addSolicitacaoModalLabel">Criar solicitação</h5>
                                                             <button type="button" className="close" data-dismiss="modal" aria-label="Close">
                                                                 <span aria-hidden="true">&times;</span>
                                                             </button>
@@ -163,31 +192,101 @@ const Dashboard: NextPage<DashboardProps> = ({ requests }: DashboardProps) => {
                                                         </tr>
                                                     </thead>
                                                     <tbody id='data-requests'>
-                                                    {
-                                                        requests.map((request,index) => {
-                                                            var s
-                                                            if(request.status == 1)
-                                                                s = <button type="button" className="btn btn-outline-primary" style={{color: "#007bff", borderColor: "#007bff", borderRadius:"20px"}} disabled>Em andamento</button>
-                                                            else if(request.status == 2)
-                                                                s = <button type="button" className="btn btn-outline-success" style={{color: "#28a745", borderColor: "#28a745", borderRadius:"20px"}} disabled>Concluida</button>
-                                                            else
-                                                                s = <button type="button" className="btn btn-outline-danger" style={{color: "#dc3545", borderColor: "#dc3545", borderRadius:"20px"}} disabled>Cancelada</button>
-                                                                
-                                                        return (
-                                                            <tr key={request.id}>
-                                                                <td>{index += 1}</td> 
-                                                                <td>{request.medicament}</td>
-                                                                <td>{request.quant}</td>
-                                                                <td>{request.type}</td>
-                                                                <td>{s}</td>
-                                                                <td>
-                                                                    <button className="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar" style={{marginLeft: "5px"}} data-toggle="modal" data-target="#editarSolicitacaoModal"><span className="ti-pencil-alt"></span></button>
-                                                                    <button className="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Excluir" style={{marginLeft: "5px"}} data-toggle="modal" data-target="#excluirSolicitacaoModal"><span className="ti-trash" style={{color: "#ffffff"}}></span></button>
-                                                                </td>
-                                                            </tr>
-                                                            
-                                                        )
-                                                    })}
+                                                        {
+                                                            requests?.map((request, index) => {
+
+                                                                var s
+                                                                if (request.status == 1)
+                                                                    s = <button type="button" className="btn btn-outline-primary" style={{ color: "#007bff", borderColor: "#007bff", borderRadius: "20px" }} disabled>Em andamento</button>
+                                                                else if (request.status == 2)
+                                                                    s = <button type="button" className="btn btn-outline-success" style={{ color: "#28a745", borderColor: "#28a745", borderRadius: "20px" }} disabled>Concluida</button>
+                                                                else
+                                                                    s = <button type="button" className="btn btn-outline-danger" style={{ color: "#dc3545", borderColor: "#dc3545", borderRadius: "20px" }} disabled>Cancelada</button>
+                                                                return (
+                                                                    <>
+
+                                                                        <tr key={request.id}>
+                                                                            <td>{index += 1}</td>
+                                                                            <td>{request.medicament}</td>
+                                                                            <td>{request.quant}</td>
+                                                                            <td>{request.type}</td>
+                                                                            <td>{s}</td>
+                                                                            <td>
+
+                                                                                <button id="buttonSE" className="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar" style={{ marginLeft: "5px" }} data-toggle="modal" value={request.id} data-target="#editSolicitacaoModal"><span className="ti-pencil-alt"></span></button>
+                                                                                <CancelButton>
+                                                                                    {request.id}
+                                                                                </CancelButton>
+                                                                                <div id="editSolicitacaoModal" className="modal fade" role="dialog"
+                                                                                    aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                                                                    <div className="modal-dialog modal-lg" role="document">
+                                                                                        <div className="modal-content">
+                                                                                            <div className="modal-header">
+                                                                                                <h5 className="modal-title" id="editSolicitacaoModalLabel">Editar solicitação</h5>
+                                                                                                <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+                                                                                                    <span aria-hidden="true">&times;</span>
+                                                                                                </button>
+                                                                                            </div>
+                                                                                            <div className="modal-body">
+                                                                                                <form method="put" id="insert_form" onSubmit={editarSoli}>
+                                                                                                    <div className="form-group row">
+                                                                                                        <label className="col-sm-2 col-form-label">Medicamento</label>
+                                                                                                        <div className="col-sm-10">
+                                                                                                            <input name="medicamento" type="text" className="form-control"
+                                                                                                                id="emedicamento" placeholder={request.medicament} />
+                                                                                                        </div>
+                                                                                                    </div>
+
+                                                                                                    <div className="form-group row">
+                                                                                                        <label className="col-sm-2 col-form-label">Quantidade</label>
+                                                                                                        <div className="col-sm-10">
+                                                                                                            <input name="quantidade" typeof="text" className="form-control" id="equantidade" placeholder={request.quant} />
+                                                                                                        </div>
+                                                                                                    </div>
+
+                                                                                                    <div className="form-group row">
+                                                                                                        <label className="col-sm-2 col-form-label">Comprimido ou em gotas?</label>
+                                                                                                        <div className="col-sm-10">
+                                                                                                            <input name="comOrGo" type="text" className="form-control" id="ecomOrGo" placeholder={request.type} />
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                    <div className="form-group row">
+                                                                                                        <div className="col-sm-10">
+                                                                                                            <button type="submit" name="EditSoli" id="editSoli" className="btn btn-outline-success" aria-hidden="true">
+                                                                                                                Editar
+                                                                                                            </button>
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                </form>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+
+                                                                                <div className="modal fade" id="cancelSolicitacaoModal" aria-labelledby="excluirSolicitacaoLabel" aria-hidden="true">
+                                                                                    <div className="modal-dialog">
+                                                                                        <div className="modal-content">
+                                                                                            <div className="modal-header">
+                                                                                                <h5 className="modal-title" id="cancelSolicitacaoLabel">Cancelar solicitação</h5>
+                                                                                                <button type="button" className="btn-close" data-dismiss="modal" aria-label="Close"></button>
+                                                                                            </div>
+                                                                                            <div className="modal-body">
+                                                                                                <h6>Você tem certeza que quer cancelar essa solicitação?</h6>
+                                                                                            </div>
+                                                                                            <form method="PATCH" onSubmit={cancelSoli}>
+                                                                                                <div className="modal-footer">
+                                                                                                    <button type="button" className="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                                                                                                    <button id="cancel" name="cancel" type="submit" className="btn btn-primary" >Sim, eu quero</button>
+                                                                                                </div>
+                                                                                            </form>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </td>
+                                                                        </tr>
+                                                                    </>
+                                                                )
+                                                            })}
                                                     </tbody>
                                                 </table>
                                             </div>
@@ -215,19 +314,25 @@ export const getServerSideProps = async (context) => {
             }
         };
     };
-
+    
     const { data } = await axios.get(`http://127.0.0.1:5000/patients/${session.token.sub}/requests?limit=8`);
-    const requests = data.map((dados: Request) => {
+    if (data.error != "No requests found") {
+        const requests = data.map((dados: Request) => {
+            return {
+                id: dados.id,
+                medicament: dados.medicament,
+                quant: dados.quant,
+                type: dados.type,
+                status: dados.status,
+            }
+        })
         return {
-            id: dados.id,
-            medicament: dados.medicament,
-            quant: dados.quant,
-            type: dados.type,
-            status: dados.status,
+            props: { session, requests }
         }
-    })
-    return {
-        props: { session, requests }
+    }else {
+        return {
+            props: {session}
+        }
     }
 }
 
