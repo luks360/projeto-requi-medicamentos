@@ -5,7 +5,7 @@ import Sidebar from '../components/Sidebar'
 import CancelButton from '../components/CancelButton'
 import { useSession, getSession } from 'next-auth/react'
 import axios from 'axios'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 type Request = {
     id: number,
@@ -194,7 +194,7 @@ const Dashboard: NextPage<DashboardProps> = ({ requests }: DashboardProps) => {
                                                     <tbody id='data-requests'>
                                                         {
                                                             requests?.map((request, index) => {
-
+                                                            
                                                                 var s
                                                                 if (request.status == 1)
                                                                     s = <button type="button" className="btn btn-outline-primary" style={{ color: "#007bff", borderColor: "#007bff", borderRadius: "20px" }} disabled>Em andamento</button>
@@ -202,6 +202,7 @@ const Dashboard: NextPage<DashboardProps> = ({ requests }: DashboardProps) => {
                                                                     s = <button type="button" className="btn btn-outline-success" style={{ color: "#28a745", borderColor: "#28a745", borderRadius: "20px" }} disabled>Concluida</button>
                                                                 else
                                                                     s = <button type="button" className="btn btn-outline-danger" style={{ color: "#dc3545", borderColor: "#dc3545", borderRadius: "20px" }} disabled>Cancelada</button>
+                                                                const data = request.id
                                                                 return (
                                                                     <>
 
@@ -212,11 +213,8 @@ const Dashboard: NextPage<DashboardProps> = ({ requests }: DashboardProps) => {
                                                                             <td>{request.type}</td>
                                                                             <td>{s}</td>
                                                                             <td>
-
                                                                                 <button id="buttonSE" className="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar" style={{ marginLeft: "5px" }} data-toggle="modal" value={request.id} data-target="#editSolicitacaoModal"><span className="ti-pencil-alt"></span></button>
-                                                                                <CancelButton>
-                                                                                    {request.id}
-                                                                                </CancelButton>
+                                                                                <CancelButton id={data} />
                                                                                 <div id="editSolicitacaoModal" className="modal fade" role="dialog"
                                                                                     aria-labelledby="exampleModalLabel" aria-hidden="true">
                                                                                     <div className="modal-dialog modal-lg" role="document">
@@ -263,29 +261,12 @@ const Dashboard: NextPage<DashboardProps> = ({ requests }: DashboardProps) => {
                                                                                     </div>
                                                                                 </div>
 
-                                                                                <div className="modal fade" id="cancelSolicitacaoModal" aria-labelledby="excluirSolicitacaoLabel" aria-hidden="true">
-                                                                                    <div className="modal-dialog">
-                                                                                        <div className="modal-content">
-                                                                                            <div className="modal-header">
-                                                                                                <h5 className="modal-title" id="cancelSolicitacaoLabel">Cancelar solicitação</h5>
-                                                                                                <button type="button" className="btn-close" data-dismiss="modal" aria-label="Close"></button>
-                                                                                            </div>
-                                                                                            <div className="modal-body">
-                                                                                                <h6>Você tem certeza que quer cancelar essa solicitação?</h6>
-                                                                                            </div>
-                                                                                            <form method="PATCH" onSubmit={cancelSoli}>
-                                                                                                <div className="modal-footer">
-                                                                                                    <button type="button" className="btn btn-secondary" data-dismiss="modal">Fechar</button>
-                                                                                                    <button id="cancel" name="cancel" type="submit" className="btn btn-primary" >Sim, eu quero</button>
-                                                                                                </div>
-                                                                                            </form>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                </div>
                                                                             </td>
                                                                         </tr>
                                                                     </>
+                                                                    
                                                                 )
+                                                                
                                                             })}
                                                     </tbody>
                                                 </table>
@@ -314,7 +295,7 @@ export const getServerSideProps = async (context) => {
             }
         };
     };
-    
+
     const { data } = await axios.get(`http://127.0.0.1:5000/patients/${session.token.sub}/requests?limit=8`);
     if (data.error != "No requests found") {
         const requests = data.map((dados: Request) => {
@@ -329,9 +310,9 @@ export const getServerSideProps = async (context) => {
         return {
             props: { session, requests }
         }
-    }else {
+    } else {
         return {
-            props: {session}
+            props: { session }
         }
     }
 }
