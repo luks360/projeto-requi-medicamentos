@@ -1,7 +1,8 @@
 import Link from "next/link";
+import Image from "next/image";
 import { signIn, signOut, useSession } from "next-auth/react";
 
-const Header: NextPage = () => {
+export default function Header() {
 
     const {data: session} = useSession();
 
@@ -49,10 +50,18 @@ const Header: NextPage = () => {
                                 </>
                             )}
                             {session && (
+                                
                                 <>
-                                    
-                                    {session.session.user.name} <br />
-                                    <button onClick={() => signOut()}>Sair</button>
+                                <div className="dropright">
+                                    <a className="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false"><img src={session.session.user.image} className="rounded-circle" width="40" height="40"/><h5 style={{display: "inline-block", paddingLeft: "5px", paddingRight: "10px", color: "#2ab152"}}>{session.session.user.name.split(" ")[0]}</h5></a>
+
+                                    <ul className="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                        <li><Link href="dashboard"><a className="dropdown-item">Dashboard</a></Link></li>
+                                        <li><Link href="profile"><a className="dropdown-item">Perfil</a></Link></li>
+                                        <li><Link href="solicitations"><a className="dropdown-item">Solicitações</a></Link></li>
+                                        <li><Link href="/"><a className="dropdown-item" onClick={() => signOut()}>Logout</a></Link></li>
+                                    </ul>
+                                </div>
                                 </>
                             )}                              
                             </div>
@@ -60,8 +69,5 @@ const Header: NextPage = () => {
                     </div>
                 </nav>
             </header>
-    )
-    
+    )  
 }
-
-export default Header;
