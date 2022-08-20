@@ -53,7 +53,7 @@ export default function Header() {
                                 
                                 <>
                                 <div className="dropright">
-                                    <a className="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false"><img src={session.session.user.image} className="rounded-circle" width="40" height="40"/><h5 style={{display: "inline-block", paddingLeft: "5px", paddingRight: "10px", color: "#2ab152"}}>{session.session.user.name.split(" ")[0]}</h5></a>
+                                    <a className="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false"><Image style={{verticalAlign: "middle"}} src={session.session.user.image} className="rounded-circle" width="40" height="40"/><h5 style={{display: "inline-block", paddingLeft: "5px", paddingRight: "10px", color: "#2ab152"}}>{session.session.user.name.split(" ")[0]}</h5></a>
 
                                     <ul className="dropdown-menu" aria-labelledby="dropdownMenuLink">
                                         <li><Link href="dashboard"><a className="dropdown-item">Dashboard</a></Link></li>
