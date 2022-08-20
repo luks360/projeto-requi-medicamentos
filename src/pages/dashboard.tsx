@@ -3,9 +3,10 @@ import Header from "../components/Header"
 import Footer from "../components/Footer"
 import Sidebar from '../components/Sidebar'
 import CancelButton from '../components/CancelButton'
+import EditButton from '../components/EditButton'
 import { useSession, getSession } from 'next-auth/react'
 import axios from 'axios'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 type Request = {
     id: number,
@@ -23,14 +24,19 @@ type DashboardProps = {
 const Dashboard: NextPage<DashboardProps> = ({ requests }: DashboardProps) => {
 
     const { data: session, status } = useSession()
-    const [showModal, setShowModal] = useState(false)
+    const [showModalC, setShowModalC] = useState(false)
+    const [showModalE, setShowModalE] = useState(false)
     const [ID, setID] = useState(0);
+    const [medicament, setMedicament] = useState('');
+    const [quant, setQuant] = useState(0);
+    const [type, setType] = useState('');
+    const [statusR, setStatus] = useState(0);
 
     const cadastrarSoli = e => {
         e.preventDefault()
-        const medicament = (document.querySelector("#medicamento") as HTMLInputElement)!.value
-        const quant = (document.querySelector("#quantidade") as HTMLInputElement)!.value
-        const type = (document.querySelector("#comOrGo") as HTMLInputElement)!.value
+        const medicament = e.target.medicamento.value
+        const quant = e.target.quantidade.value
+        const type = e.target.comOrGo.value
         const status = "1"
         const ID_patient = session.token.sub
         const name = session.token.name
@@ -43,19 +49,20 @@ const Dashboard: NextPage<DashboardProps> = ({ requests }: DashboardProps) => {
         });
     }
 
+    const cancelSoli = (id: number) => {
+        const data = { "status": 3 }
+        axios.patch(`http://127.0.0.1:5000/patients/requests/${id}/status`, data)
+    }
+
     const editarSoli = e => {
         e.preventDefault()
-        const id = (document.querySelector("#buttonSE") as HTMLButtonElement)!.value
-        const medicament = (document.querySelector("#emedicamento") as HTMLInputElement)!.value
-        const quant = (document.querySelector("#equantidade") as HTMLInputElement)!.value
-        const type = (document.querySelector("#ecomOrGo") as HTMLInputElement)!.value
+        const URL = `http://127.0.0.1:5000/patients/requests/${ID}`
         const status = "1"
-        const URL = `http://127.0.0.1:5000/patients/requests/${id}`;
-
-        const rqt = { "medicament": medicament, "quant": quant, "type": type, "status": status }
-        axios.put(URL, rqt).then(function (resposta) {
-            console.log("Solicitação atualizada!")
-        });
+        const data = { "medicament": e.target.emedicamento.value, "quant": e.target.equantidade.value, "type": e.target.ecomOrGo.value, "status": status }
+        console.log(data)
+        axios.put(URL, data).then(response => {
+            console.log(response)
+        })
     }
 
     if (status === 'authenticated') {
@@ -186,19 +193,19 @@ const Dashboard: NextPage<DashboardProps> = ({ requests }: DashboardProps) => {
                                                             requests?.map((request, index) => {
 
                                                                 var s, sc, se
-                                                                if (request.status == 1){
+                                                                if (request.status == 1) {
                                                                     s = <button type="button" className="btn btn-outline-primary" style={{ color: "#007bff", borderColor: "#007bff", borderRadius: "20px" }} disabled>Em andamento</button>
-                                                                    sc = <button onClick={() => { setShowModal(true); setID(request.id) }} id="buttonSC" className="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar" style={{ marginLeft: "5px", color: "#fff" }} data-toggle="modal"><span className="ti-trash"></span></button> 
-                                                                    se = <button id="buttonSE" className="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar" style={{ marginLeft: "5px" }} data-toggle="modal"><span className="ti-pencil-alt"></span></button>
+                                                                    sc = <button onClick={() => { setShowModalC(true); setID(request.id) }} id="buttonSC" className="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar" style={{ marginLeft: "5px", color: "#fff" }} data-toggle="modal"><span className="ti-trash"></span></button>
+                                                                    se = <button onClick={() => { setShowModalE(true); setID(request.id); setMedicament(request.medicament); setQuant(request.quant); setType(request.type); setStatus(request.status) }} id="buttonSE" className="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar" style={{ marginLeft: "5px" }} data-toggle="modal"><span className="ti-pencil-alt"></span></button>
                                                                 }
-                                                                else if (request.status == 2){
+                                                                else if (request.status == 2) {
                                                                     s = <button type="button" className="btn btn-outline-success" style={{ color: "#28a745", borderColor: "#28a745", borderRadius: "20px" }} disabled>Concluida</button>
-                                                                    sc = <button onClick={() => { setShowModal(true); setID(request.id) }} id="buttonSC" className="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar" style={{ marginLeft: "5px", color: "#fff" }} data-toggle="modal" disabled><span className="ti-trash"></span></button> 
+                                                                    sc = <button id="buttonSC" className="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar" style={{ marginLeft: "5px", color: "#fff" }} data-toggle="modal" disabled><span className="ti-trash"></span></button>
                                                                     se = <button id="buttonSE" className="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar" style={{ marginLeft: "5px" }} data-toggle="modal" data-target="#editSolicitacaoModal" disabled><span className="ti-pencil-alt"></span></button>
                                                                 }
-                                                                else{
+                                                                else {
                                                                     s = <button type="button" className="btn btn-outline-danger" style={{ color: "#dc3545", borderColor: "#dc3545", borderRadius: "20px" }} disabled>Cancelada</button>
-                                                                    sc = <button onClick={() => { setShowModal(true); setID(request.id) }} id="buttonSC" className="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar" style={{ marginLeft: "5px", color: "#fff" }} data-toggle="modal" disabled><span className="ti-trash"></span></button> 
+                                                                    sc = <button id="buttonSC" className="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar" style={{ marginLeft: "5px", color: "#fff" }} data-toggle="modal" disabled><span className="ti-trash"></span></button>
                                                                     se = <button id="buttonSE" className="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar" style={{ marginLeft: "5px" }} data-toggle="modal" data-target="#editSolicitacaoModal" disabled><span className="ti-pencil-alt"></span></button>
                                                                 }
                                                                 return (
@@ -212,9 +219,54 @@ const Dashboard: NextPage<DashboardProps> = ({ requests }: DashboardProps) => {
                                                                         <td>
                                                                             {se}
                                                                             {sc}
+                                                                            
+                                                                            <EditButton
+                                                                                onClose={() => setShowModalE(false)}
+                                                                                show={showModalE}
+                                                                            >
+                                                                                
+                                                                                <div className="modal-header">
+                                                                                    <h5 className="modal-title">Editar solicitação</h5>
+                                                                                </div>
+                                                                                <div className="modal-body">
+                                                                                    <form onSubmit={editarSoli}>
+                                                                                    <div className="form-group row">
+                                                                                        <label className="col-sm-3 col-form-label">Medicamento</label>
+                                                                                        <div className="col-sm-10">
+                                                                                            <input name="medicamento" type="text" className="form-control"
+                                                                                                id="emedicamento" placeholder={medicament} required />
+                                                                                        </div>
+                                                                                    </div>
+
+                                                                                    <div className="form-group row">
+                                                                                        <label className="col-sm-3 col-form-label">Quantidade</label>
+                                                                                        <div className="col-sm-10">
+                                                                                            <input type="number" name="quantidade" typeof="text" className="form-control" id="equantidade" placeholder={quant.toString()} required />
+                                                                                        </div>
+                                                                                    </div>
+
+                                                                                    <div className="form-group row">
+                                                                                        <label className="col-sm-10 col-form-label">Comprimido ou em gotas?</label>
+                                                                                        <div className="col-sm-10">
+                                                                                            <input name="comOrGo" type="text" className="form-control" id="ecomOrGo" placeholder={type} required />
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <div className="form-group row">
+                                                                                        <div className="col-sm-10">
+                                                                                            <button type="submit" name="EditSoli" id="editSoli" className="btn btn-success" style={{ marginRight: "10px", marginLeft: "5px" }}>
+                                                                                                Editar
+                                                                                            </button>
+                                                                                            <button className="btn btn-secondary" onClick={() => setShowModalE(false)}>
+                                                                                                Fechar
+                                                                                            </button>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    </form>
+                                                                                </div>
+                                                                            </EditButton>
                                                                             <CancelButton
-                                                                                onClose={() => setShowModal(false)}
-                                                                                show={showModal}
+                                                                                onClose={() => setShowModalC(false)}
+                                                                                show={showModalC}
 
                                                                             >
                                                                                 <div className="modal-header">
@@ -224,7 +276,7 @@ const Dashboard: NextPage<DashboardProps> = ({ requests }: DashboardProps) => {
                                                                                     <h6>Você tem certeza que quer cancelar essa solicitação?</h6>
                                                                                 </div> <br />
                                                                                 <button className="btn btn-danger" onClick={() => cancelSoli(ID)} style={{ marginRight: "10px", marginLeft: "5px" }}>Sim, quero</button>
-                                                                                <button className="btn btn-secondary" onClick={() => setShowModal(false)}>Fechar</button>
+                                                                                <button className="btn btn-secondary" onClick={() => setShowModalC(false)}>Fechar</button>
                                                                             </CancelButton>
 
 
@@ -248,16 +300,6 @@ const Dashboard: NextPage<DashboardProps> = ({ requests }: DashboardProps) => {
             </>
         )
     }
-}
-
-const cancelSoli = (id: number) => {
-    const data = { "status": 3 }
-    axios.patch(`http://127.0.0.1:5000/patients/requests/${id}/status`, data)
-}
-
-const teste = () => {
-    const id = (document.querySelector("#buttonSC") as HTMLButtonElement)!.value
-    alert("id: " + id)
 }
 
 export const getServerSideProps = async (context) => {
