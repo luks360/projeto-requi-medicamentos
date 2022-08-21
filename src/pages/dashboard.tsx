@@ -163,21 +163,21 @@ const Dashboard: NextPage<DashboardProps> = ({ requests, offers }: DashboardProp
                                                                     <label className="col-sm-2 col-form-label">Medicamento</label>
                                                                     <div className="col-sm-10">
                                                                         <input name="medicamento" type="text" className="form-control"
-                                                                            id="medicamento" placeholder="Digite o medicamento" />
+                                                                            id="medicamento" placeholder="Digite o medicamento" required />
                                                                     </div>
                                                                 </div>
 
                                                                 <div className="form-group row">
                                                                     <label className="col-sm-2 col-form-label">Quantidade</label>
                                                                     <div className="col-sm-10">
-                                                                        <input name="quantidade" typeof="text" className="form-control" id="quantidade" placeholder="Digite a quantidade" />
+                                                                        <input name="quantidade" typeof="text" className="form-control" id="quantidade" placeholder="Digite a quantidade" required />
                                                                     </div>
                                                                 </div>
 
                                                                 <div className="form-group row">
                                                                     <label className="col-sm-2 col-form-label">Comprimido ou em gotas?</label>
                                                                     <div className="col-sm-10">
-                                                                        <input name="comOrGo" type="text" className="form-control" id="comOrGo" placeholder="Digite se é comprimido ou em gotas" />
+                                                                        <input name="comOrGo" type="text" className="form-control" id="comOrGo" placeholder="Digite se é comprimido ou em gotas" required />
                                                                     </div>
                                                                 </div>
                                                                 <div className="form-group row">
