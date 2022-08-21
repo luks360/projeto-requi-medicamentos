@@ -8,6 +8,7 @@ import { useSession, getSession } from 'next-auth/react'
 import axios from 'axios'
 import { useState } from 'react'
 import OffersButton from '../components/OffersButton'
+import { Notify } from 'notiflix/build/notiflix-notify-aio';
 
 type Request = {
     id: number,
@@ -58,13 +59,15 @@ const Dashboard: NextPage<DashboardProps> = ({ requests, offers }: DashboardProp
 
         const rqt = { "medicament": medicament, "quant": quant, "type": type, "status": status, "id_patient": ID_patient, "name": name, "contact": contact }
         axios.post(URL, rqt).then(function (resposta) {
-            console.log("Solicitação cadastrada!")
+            Notify.success('Solicitação cadastrada!')
         });
     }
 
     const cancelSoli = (id: number) => {
         const data = { "status": 3 }
-        axios.patch(`http://127.0.0.1:5000/patients/requests/${id}/status`, data)
+        axios.patch(`http://127.0.0.1:5000/patients/requests/${id}/status`, data).then(response => {
+            Notify.failure('Solicitação cancelada!')
+        })
     }
 
     const editarSoli = e => {
@@ -74,7 +77,7 @@ const Dashboard: NextPage<DashboardProps> = ({ requests, offers }: DashboardProp
         const data = { "medicament": e.target.emedicamento.value, "quant": e.target.equantidade.value, "type": e.target.ecomOrGo.value, "status": status }
         console.log(data)
         axios.put(URL, data).then(response => {
-            console.log(response)
+            Notify.warning('Solicitação editada!')
         })
     }
 
@@ -232,7 +235,7 @@ const Dashboard: NextPage<DashboardProps> = ({ requests, offers }: DashboardProp
                                                                         <td>
                                                                             {se}
                                                                             {sc}
-                                                                            <button onClick={() => { setShowModalO(true); setID(request.id) }} id="buttonSO" className="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Ofertas" style={{ marginLeft: "5px", color: "#fff" }} data-toggle="modal"><span className="ti-receipt"></span></button>
+                                                                            <button onClick={() => { setShowModalO(true); setID(request.id); setStatus(request.status); }} id="buttonSO" className="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Ofertas" style={{ marginLeft: "5px", color: "#fff" }} data-toggle="modal"><span className="ti-receipt"></span></button>
                                                                             <EditButton
                                                                                 onClose={() => setShowModalE(false)}
                                                                                 show={showModalE}
@@ -309,15 +312,16 @@ const Dashboard: NextPage<DashboardProps> = ({ requests, offers }: DashboardProp
                                                                                                 offers?.map(offer => {
                                                                                                     var so, oa, or
                                                                                                     if (offer.id_request == ID) {
+                                                                                                        
                                                                                                         if (offer.status == 1) {
                                                                                                             so = <button type="button" className="btn btn-outline-primary" style={{ color: "#007bff", borderColor: "#007bff", borderRadius: "20px" }} disabled>resposta pendente</button>
-                                                                                                            oa = <button onClick={() => {setID(request.id); axios.patch(`http://127.0.0.1:5000/patients/offers/${offer.id}/status`, {"status":2}); axios.patch(`http://127.0.0.1:5000/patients/requests/${ID}/status`, {"status":2});}} id="buttonOA" className="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Aceitar oferta" style={{ marginLeft: "5px", color: "#fff" }} data-toggle="modal"><span className="ti-check"></span></button>
-                                                                                                            or = <button onClick={() => {setID(request.id); axios.patch(`http://127.0.0.1:5000/patients/offers/${offer.id}/status`, {"status":3}); axios.patch(`http://127.0.0.1:5000/patients/requests/${ID}/status`, {"status":3});}} id="buttonOR" className="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Recusar oferta" style={{ marginLeft: "5px", color: "#fff" }} data-toggle="modal"><span className="ti-close"></span></button>
-                                                                                                        } else if (offer.status == 2) {
+                                                                                                            oa = <button onClick={() => {setID(request.id); axios.patch(`http://127.0.0.1:5000/patients/offers/${offer.id}/status`, {"status":2}); axios.patch(`http://127.0.0.1:5000/patients/requests/${ID}/status`, {"status":2}); Notify.success('Oferta aceita!'); setShowModalO(false);}} id="buttonOA" className="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Aceitar oferta" style={{ marginLeft: "5px", color: "#fff" }} data-toggle="modal"><span className="ti-check"></span></button>
+                                                                                                            or = <button onClick={() => {setID(request.id); axios.patch(`http://127.0.0.1:5000/patients/offers/${offer.id}/status`, {"status":3}); axios.patch(`http://127.0.0.1:5000/patients/requests/${ID}/status`, {"status":3}); Notify.failure('Oferta recusada!'); setShowModalO(false);}} id="buttonOR" className="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Recusar oferta" style={{ marginLeft: "5px", color: "#fff" }} data-toggle="modal"><span className="ti-close"></span></button>
+                                                                                                        } else if (offer.status == 2 || statusR == 2) {
                                                                                                             so = <button type="button" className="btn btn-outline-success" style={{ color: "#28a745", borderColor: "#28a745", borderRadius: "20px" }} disabled>Aceita</button>
                                                                                                             oa = <button id="buttonOA" className="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Cancelar" style={{ marginLeft: "5px", color: "#fff" }} data-toggle="modal" disabled><span className="ti-check"></span></button>
                                                                                                             or = <button id="buttonOR" className="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Cancelar" style={{ marginLeft: "5px", color: "#fff" }} data-toggle="modal" disabled><span className="ti-close"></span></button>
-                                                                                                        } else if (offer.status == 3 || request.status == 3){
+                                                                                                        } else if (offer.status == 3 || statusR == 3){
                                                                                                             so = <button type="button" className="btn btn-outline-danger" style={{ color: "#dc3545", borderColor: "#dc3545", borderRadius: "20px" }} disabled>Recusada</button>
                                                                                                             oa = <button id="buttonOA" className="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Cancelar" style={{ marginLeft: "5px", color: "#fff" }} data-toggle="modal" disabled><span className="ti-check"></span></button>
                                                                                                             or = <button id="buttonOR" className="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Cancelar" style={{ marginLeft: "5px", color: "#fff" }} data-toggle="modal" disabled><span className="ti-close"></span></button>
@@ -384,7 +388,7 @@ export const getServerSideProps = async (context) => {
         })
         const URL = `http://127.0.0.1:5000/requests/offers`
         const dataO = await axios.get(URL);
-        if (dataO.data.error != "Invalid") {
+        if (dataO.data.error !== "Invalid") {
             const offers = dataO.data.map((dados: Offers) => {
                 return {
                     id: dados.id,

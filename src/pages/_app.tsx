@@ -18,6 +18,7 @@ return (
     <Script src="https://accounts.google.com/gsi/client" async defer></Script>
     <Script src="https://apis.google.com/js/platform.js" async defer></Script>
     <Script src="https://unpkg.com/jwt-decode/build/jwt-decode.js"></Script>
+    <Script src="dist/notiflix-notify-aio-X.X.X.min.js"></Script>
     
     
     <SessionProvider session={session}>
