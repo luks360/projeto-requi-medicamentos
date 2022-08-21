@@ -7,6 +7,7 @@ import EditButton from '../components/EditButton'
 import { useSession, getSession } from 'next-auth/react'
 import axios from 'axios'
 import { useState } from 'react'
+import OffersButton from '../components/OffersButton'
 
 type Request = {
     id: number,
@@ -17,15 +18,27 @@ type Request = {
     ID_patient: string
 }
 
-type DashboardProps = {
-    requests: Request[]
+type Offers = {
+    id: number,
+    medicament: string,
+    quant: number,
+    type: string,
+    price: string,
+    status: number,
+    id_request: number
 }
 
-const Dashboard: NextPage<DashboardProps> = ({ requests }: DashboardProps) => {
+type DashboardProps = {
+    requests: Request[]
+    offers: Offers[]
+}
+
+const Dashboard: NextPage<DashboardProps> = ({ requests, offers }: DashboardProps) => {
 
     const { data: session, status } = useSession()
     const [showModalC, setShowModalC] = useState(false)
     const [showModalE, setShowModalE] = useState(false)
+    const [showModalO, setShowModalO] = useState(false)
     const [ID, setID] = useState(0);
     const [medicament, setMedicament] = useState('');
     const [quant, setQuant] = useState(0);
@@ -195,7 +208,7 @@ const Dashboard: NextPage<DashboardProps> = ({ requests }: DashboardProps) => {
                                                                 var s, sc, se
                                                                 if (request.status == 1) {
                                                                     s = <button type="button" className="btn btn-outline-primary" style={{ color: "#007bff", borderColor: "#007bff", borderRadius: "20px" }} disabled>Em andamento</button>
-                                                                    sc = <button onClick={() => { setShowModalC(true); setID(request.id) }} id="buttonSC" className="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar" style={{ marginLeft: "5px", color: "#fff" }} data-toggle="modal"><span className="ti-trash"></span></button>
+                                                                    sc = <button onClick={() => { setShowModalC(true); setID(request.id) }} id="buttonSC" className="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Cancelar" style={{ marginLeft: "5px", color: "#fff" }} data-toggle="modal"><span className="ti-trash"></span></button>
                                                                     se = <button onClick={() => { setShowModalE(true); setID(request.id); setMedicament(request.medicament); setQuant(request.quant); setType(request.type); setStatus(request.status) }} id="buttonSE" className="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar" style={{ marginLeft: "5px" }} data-toggle="modal"><span className="ti-pencil-alt"></span></button>
                                                                 }
                                                                 else if (request.status == 2) {
@@ -206,7 +219,7 @@ const Dashboard: NextPage<DashboardProps> = ({ requests }: DashboardProps) => {
                                                                 else {
                                                                     s = <button type="button" className="btn btn-outline-danger" style={{ color: "#dc3545", borderColor: "#dc3545", borderRadius: "20px" }} disabled>Cancelada</button>
                                                                     sc = <button id="buttonSC" className="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar" style={{ marginLeft: "5px", color: "#fff" }} data-toggle="modal" disabled><span className="ti-trash"></span></button>
-                                                                    se = <button id="buttonSE" className="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar" style={{ marginLeft: "5px" }} data-toggle="modal" data-target="#editSolicitacaoModal" disabled><span className="ti-pencil-alt"></span></button>
+                                                                    se = <button id="buttonSE" className="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar" style={{ marginLeft: "5px", color: "#fff" }} data-toggle="modal" data-target="#editSolicitacaoModal" disabled><span className="ti-pencil-alt"></span></button>
                                                                 }
                                                                 return (
 
@@ -219,55 +232,54 @@ const Dashboard: NextPage<DashboardProps> = ({ requests }: DashboardProps) => {
                                                                         <td>
                                                                             {se}
                                                                             {sc}
-                                                                            
+                                                                            <button onClick={() => { setShowModalO(true); setID(request.id) }} id="buttonSO" className="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Ofertas" style={{ marginLeft: "5px", color: "#fff" }} data-toggle="modal"><span className="ti-receipt"></span></button>
                                                                             <EditButton
                                                                                 onClose={() => setShowModalE(false)}
                                                                                 show={showModalE}
                                                                             >
-                                                                                
+
                                                                                 <div className="modal-header">
                                                                                     <h5 className="modal-title">Editar solicitação</h5>
                                                                                 </div>
                                                                                 <div className="modal-body">
                                                                                     <form onSubmit={editarSoli}>
-                                                                                    <div className="form-group row">
-                                                                                        <label className="col-sm-3 col-form-label">Medicamento</label>
-                                                                                        <div className="col-sm-10">
-                                                                                            <input name="medicamento" type="text" className="form-control"
-                                                                                                id="emedicamento" placeholder={medicament} required />
+                                                                                        <div className="form-group row">
+                                                                                            <label className="col-sm-3 col-form-label">Medicamento</label>
+                                                                                            <div className="col-sm-10">
+                                                                                                <input name="medicamento" type="text" className="form-control"
+                                                                                                    id="emedicamento" placeholder={medicament} required />
+                                                                                            </div>
                                                                                         </div>
-                                                                                    </div>
 
-                                                                                    <div className="form-group row">
-                                                                                        <label className="col-sm-3 col-form-label">Quantidade</label>
-                                                                                        <div className="col-sm-10">
-                                                                                            <input type="number" name="quantidade" typeof="text" className="form-control" id="equantidade" placeholder={quant.toString()} required />
+                                                                                        <div className="form-group row">
+                                                                                            <label className="col-sm-3 col-form-label">Quantidade</label>
+                                                                                            <div className="col-sm-10">
+                                                                                                <input type="number" name="quantidade" typeof="text" className="form-control" id="equantidade" placeholder={quant.toString()} required />
+                                                                                            </div>
                                                                                         </div>
-                                                                                    </div>
 
-                                                                                    <div className="form-group row">
-                                                                                        <label className="col-sm-10 col-form-label">Comprimido ou em gotas?</label>
-                                                                                        <div className="col-sm-10">
-                                                                                            <input name="comOrGo" type="text" className="form-control" id="ecomOrGo" placeholder={type} required />
+                                                                                        <div className="form-group row">
+                                                                                            <label className="col-sm-10 col-form-label">Comprimido ou em gotas?</label>
+                                                                                            <div className="col-sm-10">
+                                                                                                <input name="comOrGo" type="text" className="form-control" id="ecomOrGo" placeholder={type} required />
+                                                                                            </div>
                                                                                         </div>
-                                                                                    </div>
-                                                                                    <div className="form-group row">
-                                                                                        <div className="col-sm-10">
-                                                                                            <button type="submit" name="EditSoli" id="editSoli" className="btn btn-success" style={{ marginRight: "10px", marginLeft: "5px" }}>
-                                                                                                Editar
-                                                                                            </button>
-                                                                                            <button className="btn btn-secondary" onClick={() => setShowModalE(false)}>
-                                                                                                Fechar
-                                                                                            </button>
+                                                                                        <div className="form-group row">
+                                                                                            <div className="col-sm-10">
+                                                                                                <button type="submit" name="EditSoli" id="editSoli" className="btn btn-success" style={{ marginRight: "10px", marginLeft: "5px" }}>
+                                                                                                    Editar
+                                                                                                </button>
+                                                                                                <button className="btn btn-secondary" onClick={() => setShowModalE(false)}>
+                                                                                                    Fechar
+                                                                                                </button>
+                                                                                            </div>
                                                                                         </div>
-                                                                                    </div>
                                                                                     </form>
                                                                                 </div>
                                                                             </EditButton>
                                                                             <CancelButton
                                                                                 onClose={() => setShowModalC(false)}
                                                                                 show={showModalC}
-
                                                                             >
                                                                                 <div className="modal-header">
                                                                                     <h5 className="modal-title" id="cancelSolicitacaoLabel">Cancelar solicitação</h5>
@@ -278,8 +290,54 @@ const Dashboard: NextPage<DashboardProps> = ({ requests }: DashboardProps) => {
                                                                                 <button className="btn btn-danger" onClick={() => cancelSoli(ID)} style={{ marginRight: "10px", marginLeft: "5px" }}>Sim, quero</button>
                                                                                 <button className="btn btn-secondary" onClick={() => setShowModalC(false)}>Fechar</button>
                                                                             </CancelButton>
+                                                                            <OffersButton
+                                                                                onClose={() => setShowModalO(false)}
+                                                                                show={showModalO}
+                                                                            >
+                                                                                <div className="table-responsive">
+                                                                                    <table className="table no-wrap">
+                                                                                        <thead>
+                                                                                            <tr>
+                                                                                                <th className="border-top-0">Medicamento</th>
+                                                                                                <th className="border-top-0">Preço</th>
+                                                                                                <th className="border-top-0">Situação</th>
+                                                                                                <th className="border-top-0">Ações</th>
+                                                                                            </tr>
+                                                                                        </thead>
+                                                                                        <tbody id='data-offers'>
+                                                                                            {
+                                                                                                offers?.map(offer => {
+                                                                                                    var so, oa, or
+                                                                                                    if (offer.id_request == ID) {
+                                                                                                        if (offer.status == 1) {
+                                                                                                            so = <button type="button" className="btn btn-outline-primary" style={{ color: "#007bff", borderColor: "#007bff", borderRadius: "20px" }} disabled>resposta pendente</button>
+                                                                                                            oa = <button onClick={() => {setID(request.id); axios.patch(`http://127.0.0.1:5000/patients/offers/${offer.id}/status`, {"status":2}); axios.patch(`http://127.0.0.1:5000/patients/requests/${ID}/status`, {"status":2});}} id="buttonOA" className="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Aceitar oferta" style={{ marginLeft: "5px", color: "#fff" }} data-toggle="modal"><span className="ti-check"></span></button>
+                                                                                                            or = <button onClick={() => {setID(request.id); axios.patch(`http://127.0.0.1:5000/patients/offers/${offer.id}/status`, {"status":3}); axios.patch(`http://127.0.0.1:5000/patients/requests/${ID}/status`, {"status":3});}} id="buttonOR" className="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Recusar oferta" style={{ marginLeft: "5px", color: "#fff" }} data-toggle="modal"><span className="ti-close"></span></button>
+                                                                                                        } else if (offer.status == 2) {
+                                                                                                            so = <button type="button" className="btn btn-outline-success" style={{ color: "#28a745", borderColor: "#28a745", borderRadius: "20px" }} disabled>Aceita</button>
+                                                                                                            oa = <button id="buttonOA" className="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Cancelar" style={{ marginLeft: "5px", color: "#fff" }} data-toggle="modal" disabled><span className="ti-check"></span></button>
+                                                                                                            or = <button id="buttonOR" className="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Cancelar" style={{ marginLeft: "5px", color: "#fff" }} data-toggle="modal" disabled><span className="ti-close"></span></button>
+                                                                                                        } else if (offer.status == 3 || request.status == 3){
+                                                                                                            so = <button type="button" className="btn btn-outline-danger" style={{ color: "#dc3545", borderColor: "#dc3545", borderRadius: "20px" }} disabled>Recusada</button>
+                                                                                                            oa = <button id="buttonOA" className="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Cancelar" style={{ marginLeft: "5px", color: "#fff" }} data-toggle="modal" disabled><span className="ti-check"></span></button>
+                                                                                                            or = <button id="buttonOR" className="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Cancelar" style={{ marginLeft: "5px", color: "#fff" }} data-toggle="modal" disabled><span className="ti-close"></span></button>
+                                                                                                        }
 
-
+                                                                                                        return (
+                                                                                                            <tr key={offer.id}>
+                                                                                                                <td>{offer.medicament}</td>
+                                                                                                                <td>{offer.price}</td>
+                                                                                                                <td>{so}</td>
+                                                                                                                <td>{oa}{or}</td>
+                                                                                                            </tr>
+                                                                                                        )
+                                                                                                    }
+                                                                                                })
+                                                                                            }
+                                                                                        </tbody>
+                                                                                    </table>
+                                                                                </div>
+                                                                            </OffersButton>
                                                                         </td>
                                                                     </tr>
                                                                 )
@@ -324,6 +382,24 @@ export const getServerSideProps = async (context) => {
                 status: dados.status,
             }
         })
+        const URL = `http://127.0.0.1:5000/requests/offers`
+        const dataO = await axios.get(URL);
+        if (dataO.data.error != "Invalid") {
+            const offers = dataO.data.map((dados: Offers) => {
+                return {
+                    id: dados.id,
+                    medicament: dados.medicament,
+                    quant: dados.quant,
+                    type: dados.type,
+                    price: dados.price,
+                    status: dados.status,
+                    id_request: dados.id_request
+                }
+            })
+            return {
+                props: { session, requests, offers }
+            }
+        }
         return {
             props: { session, requests }
         }
