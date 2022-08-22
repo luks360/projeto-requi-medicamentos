@@ -10,6 +10,14 @@ import { useState } from 'react'
 import OffersButton from '../components/OffersButton'
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 
+type Report = {
+    id_patient: string,
+    quant_andamento: number,
+    quant_cancelado: number,
+    quant_concluido: number,
+    quant_total: number
+}
+
 type Request = {
     id: number,
     medicament: string,
@@ -32,9 +40,10 @@ type Offers = {
 type DashboardProps = {
     requests: Request[]
     offers: Offers[]
+    report: Report[]
 }
 
-const Dashboard: NextPage<DashboardProps> = ({ requests, offers }: DashboardProps) => {
+const Dashboard: NextPage<DashboardProps> = ({ requests, offers, report }: DashboardProps) => {
 
     const { data: session, status } = useSession()
     const [showModalC, setShowModalC] = useState(false)
@@ -99,39 +108,74 @@ const Dashboard: NextPage<DashboardProps> = ({ requests, offers }: DashboardProp
                             </div>
                             <div className="container-fluid">
                                 <div className="row justify-content-center">
-                                    <div className="col-lg-3 col-md-12">
-                                        <div className="white-box analytics-info">
-                                            <h3 className="box-title">Requisições <br /> criadas</h3>
-                                            <ul className="list-inline two-part d-flex align-items-center mb-0">
-                                                <li className="ms-auto"><span className="counter text-warning">0</span></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                    <div className="col-lg-3 col-md-12">
-                                        <div className="white-box analytics-info">
-                                            <h3 className="box-title">Requisições em progresso</h3>
-                                            <ul className="list-inline two-part d-flex align-items-center mb-0">
-                                                <li className="ms-auto"><span className="counter text-primary">4</span></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                    <div className="col-lg-3 col-md-12">
-                                        <div className="white-box analytics-info">
-                                            <h3 className="box-title">Requisições canceladas</h3>
-                                            <ul className="list-inline two-part d-flex align-items-center mb-0">
-                                                <li className="ms-auto"><span className="counter text-danger">0</span></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                    <div className="col-lg-3 col-md-12">
-                                        <div className="white-box analytics-info">
-                                            <h3 className="box-title">Requisições concluidas</h3>
-                                            <ul className="list-inline two-part d-flex align-items-center mb-0">
-                                                <li className="ms-auto"><span className="counter text-success">16</span>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </div>
+                                    {
+                                        report?.map((r: Report) => {
+                                            if (r.id_patient === session.token.sub) {
+                                                return (
+                                                    <>
+
+                                                        <div className="col-lg-3 col-md-12">
+                                                            <div className="white-box analytics-info">
+                                                                <h3 className="box-title">Requisições <br /> criadas</h3>
+                                                                <ul className="list-inline two-part d-flex align-items-center mb-0">
+                                                                    <li className="ms-auto">
+
+                                                                        <span className="counter text-warning">
+                                                                            {r.quant_total}
+                                                                        </span>
+
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                        <div className="col-lg-3 col-md-12">
+                                                            <div className="white-box analytics-info">
+                                                                <h3 className="box-title">Requisições em progresso</h3>
+                                                                <ul className="list-inline two-part d-flex align-items-center mb-0">
+                                                                    <li className="ms-auto">
+
+                                                                        <span className="counter text-primary">
+                                                                            {r.quant_andamento}
+                                                                        </span>
+
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                        <div className="col-lg-3 col-md-12">
+                                                            <div className="white-box analytics-info">
+                                                                <h3 className="box-title">Requisições canceladas</h3>
+                                                                <ul className="list-inline two-part d-flex align-items-center mb-0">
+                                                                    <li className="ms-auto">
+
+
+                                                                        <span className="counter text-danger">
+                                                                            {r.quant_cancelado}
+                                                                        </span>
+
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                        <div className="col-lg-3 col-md-12">
+                                                            <div className="white-box analytics-info">
+                                                                <h3 className="box-title">Requisições concluidas</h3>
+                                                                <ul className="list-inline two-part d-flex align-items-center mb-0">
+                                                                    <li className="ms-auto">
+
+                                                                        <span className="counter text-success">
+                                                                            {r.quant_concluido}
+                                                                        </span>
+
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </>
+                                                )
+                                            }
+                                        })
+                                    }
                                 </div>
                                 <div className="row">
                                     <div className="col-md-12 col-lg-12 col-sm-12">
@@ -312,16 +356,16 @@ const Dashboard: NextPage<DashboardProps> = ({ requests, offers }: DashboardProp
                                                                                                 offers?.map(offer => {
                                                                                                     var so, oa, or
                                                                                                     if (offer.id_request == ID) {
-                                                                                                        
+
                                                                                                         if (offer.status == 1) {
                                                                                                             so = <button type="button" className="btn btn-outline-primary" style={{ color: "#007bff", borderColor: "#007bff", borderRadius: "20px" }} disabled>resposta pendente</button>
-                                                                                                            oa = <button onClick={() => {setID(request.id); axios.patch(`http://127.0.0.1:5000/patients/offers/${offer.id}/status`, {"status":2}); axios.patch(`http://127.0.0.1:5000/patients/requests/${ID}/status`, {"status":2}); Notify.success('Oferta aceita!'); setShowModalO(false);}} id="buttonOA" className="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Aceitar oferta" style={{ marginLeft: "5px", color: "#fff" }} data-toggle="modal"><span className="ti-check"></span></button>
-                                                                                                            or = <button onClick={() => {setID(request.id); axios.patch(`http://127.0.0.1:5000/patients/offers/${offer.id}/status`, {"status":3}); axios.patch(`http://127.0.0.1:5000/patients/requests/${ID}/status`, {"status":3}); Notify.failure('Oferta recusada!'); setShowModalO(false);}} id="buttonOR" className="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Recusar oferta" style={{ marginLeft: "5px", color: "#fff" }} data-toggle="modal"><span className="ti-close"></span></button>
+                                                                                                            oa = <button onClick={() => { setID(request.id); axios.patch(`http://127.0.0.1:5000/patients/offers/${offer.id}/status`, { "status": 2 }); axios.patch(`http://127.0.0.1:5000/patients/requests/${ID}/status`, { "status": 2 }); Notify.success('Oferta aceita!'); setShowModalO(false); }} id="buttonOA" className="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Aceitar oferta" style={{ marginLeft: "5px", color: "#fff" }} data-toggle="modal"><span className="ti-check"></span></button>
+                                                                                                            or = <button onClick={() => { setID(request.id); axios.patch(`http://127.0.0.1:5000/patients/offers/${offer.id}/status`, { "status": 3 }); axios.patch(`http://127.0.0.1:5000/patients/requests/${ID}/status`, { "status": 3 }); Notify.failure('Oferta recusada!'); setShowModalO(false); }} id="buttonOR" className="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Recusar oferta" style={{ marginLeft: "5px", color: "#fff" }} data-toggle="modal"><span className="ti-close"></span></button>
                                                                                                         } else if (offer.status == 2 || statusR == 2) {
                                                                                                             so = <button type="button" className="btn btn-outline-success" style={{ color: "#28a745", borderColor: "#28a745", borderRadius: "20px" }} disabled>Aceita</button>
                                                                                                             oa = <button id="buttonOA" className="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Cancelar" style={{ marginLeft: "5px", color: "#fff" }} data-toggle="modal" disabled><span className="ti-check"></span></button>
                                                                                                             or = <button id="buttonOR" className="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Cancelar" style={{ marginLeft: "5px", color: "#fff" }} data-toggle="modal" disabled><span className="ti-close"></span></button>
-                                                                                                        } else if (offer.status == 3 || statusR == 3){
+                                                                                                        } else if (offer.status == 3 || statusR == 3) {
                                                                                                             so = <button type="button" className="btn btn-outline-danger" style={{ color: "#dc3545", borderColor: "#dc3545", borderRadius: "20px" }} disabled>Recusada</button>
                                                                                                             oa = <button id="buttonOA" className="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Cancelar" style={{ marginLeft: "5px", color: "#fff" }} data-toggle="modal" disabled><span className="ti-check"></span></button>
                                                                                                             or = <button id="buttonOR" className="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Cancelar" style={{ marginLeft: "5px", color: "#fff" }} data-toggle="modal" disabled><span className="ti-close"></span></button>
@@ -386,22 +430,38 @@ export const getServerSideProps = async (context) => {
                 status: dados.status,
             }
         })
-        const URL = `http://127.0.0.1:5000/requests/offers`
-        const dataO = await axios.get(URL);
-        if (dataO.data.error !== "Invalid") {
-            const offers = dataO.data.map((dados: Offers) => {
+        const dataRE = await axios.get("http://127.0.0.1:5000/patients/report")
+        if (dataRE.data.error !== "No report") {
+            const report = dataRE.data.map((r: Report) => {
                 return {
-                    id: dados.id,
-                    medicament: dados.medicament,
-                    quant: dados.quant,
-                    type: dados.type,
-                    price: dados.price,
-                    status: dados.status,
-                    id_request: dados.id_request
+                    id_patient: r.id_patient,
+                    quant_andamento: r.quant_andamento,
+                    quant_cancelado: r.quant_cancelado,
+                    quant_concluido: r.quant_concluido,
+                    quant_total: r.quant_total
                 }
             })
+            const URL = `http://127.0.0.1:5000/requests/offers`
+            const dataO = await axios.get(URL);
+            if (dataO.data.error !== "Invalid") {
+                const offers = dataO.data.map((dados: Offers) => {
+                    return {
+                        id: dados.id,
+                        medicament: dados.medicament,
+                        quant: dados.quant,
+                        type: dados.type,
+                        price: dados.price,
+                        status: dados.status,
+                        id_request: dados.id_request
+                    }
+                })
+
+                return {
+                    props: { session, requests, offers, report }
+                }
+            }
             return {
-                props: { session, requests, offers }
+                props: { session, requests, report }
             }
         }
         return {
