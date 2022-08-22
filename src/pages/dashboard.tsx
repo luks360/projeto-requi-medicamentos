@@ -10,6 +10,12 @@ import { useState } from 'react'
 import OffersButton from '../components/OffersButton'
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 
+type Patient = {
+    id: string,
+    name: string,
+    email: string
+}
+
 type Report = {
     id_patient: string,
     quant_andamento: number,
@@ -41,9 +47,10 @@ type DashboardProps = {
     requests: Request[]
     offers: Offers[]
     report: Report[]
+    patient: Patient
 }
 
-const Dashboard: NextPage<DashboardProps> = ({ requests, offers, report }: DashboardProps) => {
+const Dashboard: NextPage<DashboardProps> = ({ requests, offers, report, patient }: DashboardProps) => {
 
     const { data: session, status } = useSession()
     const [showModalC, setShowModalC] = useState(false)
@@ -96,7 +103,7 @@ const Dashboard: NextPage<DashboardProps> = ({ requests, offers, report }: Dashb
                 <div className="body">
                     <div id="main-wrapper" data-layout="vertical" data-navbarbg="skin5" data-sidebartype="full"
                         data-sidebar-position="absolute" data-header-position="absolute" data-boxed-layout="full">
-                        <Header />
+                        <Header patient={patient.name}/>
                         <Sidebar />
                         <div className="page-wrapper">
                             <div className="page-breadcrumb bg-white" >
@@ -418,7 +425,10 @@ export const getServerSideProps = async (context) => {
             }
         };
     };
-
+    const datap = await axios.get(`http://127.0.0.1:5000/patients/${session.token.sub}`)
+    if (datap.data.error != "No patients found") {
+        const patient = datap.data
+            
     const { data } = await axios.get(`http://127.0.0.1:5000/patients/${session.token.sub}/requests?limit=8`);
     if (data.error != "No requests found") {
         const requests = data.map((dados: Request) => {
@@ -457,17 +467,23 @@ export const getServerSideProps = async (context) => {
                 })
 
                 return {
-                    props: { session, requests, offers, report }
+                    props: { session, requests, offers, report, patient }
                 }
             }
+            
             return {
-                props: { session, requests, report }
+                props: { session, requests, report, patient }
             }
         }
         return {
-            props: { session, requests }
+            props: { session, requests, patient }
         }
-    } else {
+    } 
+    return {
+        props: { session, patient }
+    }
+}
+    else {
         return {
             props: { session }
         }

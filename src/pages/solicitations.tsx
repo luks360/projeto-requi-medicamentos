@@ -10,6 +10,12 @@ import { useState } from 'react'
 import OffersButton from '../components/OffersButton'
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 
+type Patient = {
+    id: string,
+    name: string,
+    email: string
+}
+
 type Request = {
     id: number,
     medicament: string,
@@ -32,9 +38,10 @@ type Offers = {
 type SolicitationsProps = {
     requests: Request[]
     offers: Offers[]
+    patient: Patient
 }
 
-const Solicitations: NextPage<SolicitationsProps> = ({ requests, offers }: SolicitationsProps) => {
+const Solicitations: NextPage<SolicitationsProps> = ({ requests, offers, patient }: SolicitationsProps) => {
     const { data: session, status } = useSession()
     const [showModalC, setShowModalC] = useState(false)
     const [showModalE, setShowModalE] = useState(false)
@@ -86,7 +93,7 @@ const Solicitations: NextPage<SolicitationsProps> = ({ requests, offers }: Solic
                 <div className="body">
                     <div id="main-wrapper" data-layout="vertical" data-navbarbg="skin5" data-sidebartype="full"
                         data-sidebar-position="absolute" data-header-position="absolute" data-boxed-layout="full">
-                        <Header />
+                        <Header patient={patient.name}/>
                         <Sidebar />
                         <div className="page-wrapper">
                             <div className="page-breadcrumb bg-white">
@@ -340,40 +347,51 @@ export const getServerSideProps = async (context) => {
             }
         };
     };
+    const datap = await axios.get(`http://127.0.0.1:5000/patients/${session.token.sub}`)
+    if (datap.data.error != "No patients found") {
+        const patient = datap.data
 
-    const { data } = await axios.get(`http://127.0.0.1:5000/patients/${session.token.sub}/requests`);
-    if (data.error != "No requests found") {
-        const requests = data.map((dados: Request) => {
-            return {
-                id: dados.id,
-                medicament: dados.medicament,
-                quant: dados.quant,
-                type: dados.type,
-                status: dados.status,
-            }
-        })
-        const URL = `http://127.0.0.1:5000/requests/offers`
-        const dataO = await axios.get(URL);
-        if (dataO.data.error !== "Invalid") {
-            const offers = dataO.data.map((dados: Offers) => {
+        const { data } = await axios.get(`http://127.0.0.1:5000/patients/${session.token.sub}/requests?limit=8`);
+        if (data.error != "No requests found") {
+            const requests = data.map((dados: Request) => {
                 return {
                     id: dados.id,
                     medicament: dados.medicament,
                     quant: dados.quant,
                     type: dados.type,
-                    price: dados.price,
                     status: dados.status,
-                    id_request: dados.id_request
                 }
             })
+
+            const URL = `http://127.0.0.1:5000/requests/offers`
+            const dataO = await axios.get(URL);
+            if (dataO.data.error !== "Invalid") {
+                const offers = dataO.data.map((dados: Offers) => {
+                    return {
+                        id: dados.id,
+                        medicament: dados.medicament,
+                        quant: dados.quant,
+                        type: dados.type,
+                        price: dados.price,
+                        status: dados.status,
+                        id_request: dados.id_request
+                    }
+                })
+
+                return {
+                    props: { session, requests, offers, patient }
+                }
+            }
+
             return {
-                props: { session, requests, offers }
+                props: { session, requests, patient }
             }
         }
         return {
-            props: { session, requests }
+            props: { session, patient }
         }
-    } else {
+    }
+    else {
         return {
             props: { session }
         }
